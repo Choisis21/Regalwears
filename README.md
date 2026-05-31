@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Regal Wears
 
-## Getting Started
+A modern, production-ready fashion e-commerce demo for a ladies' wear brand. Built to feel alive and human, with a light editorial look, scroll animations throughout, and end-to-end shopping flows running in test mode.
 
-First, run the development server:
+## Tech stack
+
+- **Framework:** Next.js 15 (App Router) + TypeScript
+- **Styling:** Tailwind CSS v4 (`@theme`) + shadcn/ui
+- **Database:** PostgreSQL (Supabase) via Prisma
+- **Auth:** NextAuth / Auth.js (credentials + Google, database sessions)
+- **Payments:** Stripe + PayPal (test mode)
+- **Media:** Cloudinary · **Search:** Algolia · **Email:** Resend
+- **Motion:** Framer Motion · **Icons:** Lucide
+
+## Getting started
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Set up environment variables
+#    Fill in the values in .env (see "Environment" below)
+
+# 3. Apply the database schema
+npx prisma migrate dev
+
+# 4. Run the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All secrets live in a single `.env` file (gitignored). The keys it expects:
 
-## Learn More
+- `DATABASE_URL` / `DIRECT_URL` — Supabase Postgres (pooled + direct)
+- `NEXTAUTH_URL` / `NEXTAUTH_SECRET` / `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
+- `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` / `STRIPE_WEBHOOK_SECRET`
+- `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `NEXT_PUBLIC_PAYPAL_CLIENT_ID`
+- `CLOUDINARY_*` · `NEXT_PUBLIC_ALGOLIA_*` / `ALGOLIA_ADMIN_KEY` · `RESEND_API_KEY`
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev      # start the dev server
+npm run build    # production build
+npm run start    # serve the production build
+npm run lint     # lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The storefront currently renders **placeholder content** (`src/lib/placeholder-data.ts`) with verified Unsplash photography. These swap to real database records and Cloudinary images during the catalog and seed phases.
+- The full product specification lives in `Build Prompt.md`.

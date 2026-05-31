@@ -29,7 +29,7 @@ export function NewsletterBanner() {
               e.preventDefault();
               if (email) setSubmitted(true);
             }}
-            className="mx-auto mt-9 flex max-w-md flex-col gap-3 sm:flex-row"
+            className="mx-auto mt-9 flex w-full max-w-md flex-col gap-3 sm:flex-row"
           >
             <input
               type="email"
@@ -37,11 +37,11 @@ export function NewsletterBanner() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example@gmail.com"
-              className="h-12 flex-1 rounded-full border border-cream/20 bg-cream/10 px-5 text-sm text-cream placeholder:text-cream/50 focus:border-rosegold focus:ring-2 focus:ring-rosegold/40 focus:outline-none"
+              className="h-12 w-full rounded-full border border-cream/20 bg-cream/10 px-5 text-base text-cream placeholder:text-cream/50 focus:border-rosegold focus:ring-2 focus:ring-rosegold/40 focus:outline-none sm:min-w-0 sm:flex-1"
             />
             <button
               type="submit"
-              className="flex h-12 items-center justify-center gap-2 rounded-full bg-cream px-7 text-sm font-semibold text-burgundy transition-opacity hover:opacity-90"
+              className="flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-cream px-7 text-sm font-semibold text-burgundy transition-opacity hover:opacity-90 sm:w-auto"
             >
               Subscribe <Send className="size-4" />
             </button>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { CartProvider } from "@/components/cart/cart-context";
+import { CartDrawer } from "@/components/cart/cart-drawer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,6 +23,7 @@ export const metadata: Metadata = {
   },
   description:
     "Discover beautifully made ladies' wear at Regal Wears. Elegant dresses, tops, and timeless pieces, styled for every occasion.",
+  icons: { icon: [{ url: "/regal-white.webp", type: "image/webp" }] },
 };
 
 export default function RootLayout({
@@ -32,8 +35,14 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <CartProvider>
+          {children}
+          <CartDrawer />
+        </CartProvider>
+      </body>
     </html>
   );
 }

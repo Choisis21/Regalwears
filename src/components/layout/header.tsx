@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ChevronDown,
   Heart,
@@ -15,26 +16,65 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { navLinks, currencies } from "@/lib/placeholder-data";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/layout/logo";
+import { useCart } from "@/components/cart/cart-context";
+
+// Black wordmark for light/cream backgrounds (solid header, mobile drawer);
+// white wordmark for the transparent header over a dark hero.
+const LOGO_ON_LIGHT = "/regal-black.webp";
+const LOGO_ON_DARK = "/regal-white.webp";
+
+// Routes whose first section is a full-bleed image hero. The header sits
+// transparently over these until the user scrolls.
+function routeHasHero(pathname: string): boolean {
+  if (pathname === "/") return true;
+  if (pathname === "/about") return true;
+  if (pathname === "/shop" || pathname.startsWith("/shop/")) return true;
+  if (pathname.startsWith("/blog/")) return true; // blog posts, not the listing
+  return false;
+}
+
+// Which nav item should read as "current" for a given path.
+function isActiveLink(href: string, pathname: string): boolean {
+  if (href === "/") return pathname === "/";
+  if (href === "/shop") {
+    return (
+      pathname === "/shop" ||
+      pathname.startsWith("/shop/") ||
+      pathname.startsWith("/product/")
+    );
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function Header() {
+  const pathname = usePathname();
+  const overHero = routeHasHero(pathname);
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [currency, setCurrency] = useState(currencies[0]);
   const [scrolled, setScrolled] = useState(false);
-  const cartCount = 0; // wired to real state in the cart phase
+  const { count: cartCount, openCart } = useCart();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 32);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Transparent only while resting at the top of a hero page.
+  const transparent = overHero && !scrolled;
+  const fg = transparent ? "text-cream" : "text-burgundy";
+
   return (
-    <header className="sticky top-0 z-50">
-      {/* Slim announcement bar */}
-      <div className="bg-burgundy text-center text-xs tracking-wide text-cream/90">
-        <p className="px-4 py-2">
+    <header
+      className={cn("z-50", overHero ? "fixed inset-x-0 top-0" : "sticky top-0")}
+    >
+      {/* Slim announcement bar (always visible, on every page) */}
+      <div className="bg-burgundy text-center text-cream/90">
+        <p className="px-4 py-2 text-xs tracking-wide">
           Complimentary shipping over $100 &nbsp;·&nbsp; Easy 30-day returns
         </p>
       </div>
@@ -42,52 +82,68 @@ export function Header() {
       {/* Main bar */}
       <div
         className={cn(
-          "border-b transition-colors duration-300",
-          scrolled
-            ? "border-border bg-cream/90 backdrop-blur-md"
-            : "border-transparent bg-cream",
+          "relative border-b transition-colors duration-300",
+          transparent
+            ? "border-transparent bg-transparent"
+            : "border-border bg-cream/90 backdrop-blur-md",
         )}
       >
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <div className="relative mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           {/* Mobile menu toggle */}
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="text-burgundy lg:hidden"
+            className={cn("transition-colors lg:hidden", fg)}
             aria-label="Open menu"
           >
             <Menu className="size-6" />
           </button>
 
-          {/* Logo */}
-          <Link
-            href="/"
-            className="font-heading text-2xl tracking-tight text-burgundy sm:text-[1.7rem]"
-          >
-            Regal Wears
-          </Link>
+          {/* Logo (light wordmark over the dark/transparent header, dark over cream) */}
+          <Logo src={transparent ? LOGO_ON_DARK : LOGO_ON_LIGHT} />
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-8 lg:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="group relative text-sm font-medium text-burgundy/80 transition-colors hover:text-burgundy"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 h-px w-0 bg-rosegold transition-all duration-300 group-hover:w-full" />
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const active = isActiveLink(link.href, pathname);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "group relative text-sm font-medium transition-colors",
+                    transparent
+                      ? active
+                        ? "text-cream"
+                        : "text-cream/85 hover:text-cream"
+                      : active
+                        ? "text-burgundy"
+                        : "text-burgundy/80 hover:text-burgundy",
+                  )}
+                >
+                  {link.label}
+                  <span
+                    className={cn(
+                      "absolute -bottom-1 left-0 h-px bg-rosegold transition-all duration-300",
+                      active ? "w-full" : "w-0 group-hover:w-full",
+                    )}
+                  />
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 text-burgundy sm:gap-4">
+          <div className={cn("flex items-center gap-3 transition-colors sm:gap-4", fg)}>
             <div className="relative hidden sm:block">
               <button
                 type="button"
                 onClick={() => setCurrencyOpen((v) => !v)}
-                className="flex items-center gap-1 text-sm text-burgundy/80 transition-colors hover:text-burgundy"
+                className={cn(
+                  "flex items-center gap-1 text-sm transition-colors",
+                  transparent ? "text-cream/85 hover:text-cream" : "text-burgundy/80 hover:text-burgundy",
+                )}
                 aria-haspopup="listbox"
                 aria-expanded={currencyOpen}
               >
@@ -127,31 +183,20 @@ export function Header() {
               </AnimatePresence>
             </div>
 
-            <button
-              type="button"
-              className="transition-colors hover:text-rosegold"
-              aria-label="Search"
-            >
+            <button type="button" className="transition-colors hover:text-rosegold" aria-label="Search">
               <Search className="size-5" />
             </button>
-            <Link
-              href="/account"
-              className="hidden transition-colors hover:text-rosegold sm:block"
-              aria-label="Account"
-            >
+            <Link href="/account" className="hidden transition-colors hover:text-rosegold sm:block" aria-label="Account">
               <User className="size-5" />
             </Link>
-            <Link
-              href="/wishlist"
-              className="transition-colors hover:text-rosegold"
-              aria-label="Wishlist"
-            >
+            <Link href="/wishlist" className="transition-colors hover:text-rosegold" aria-label="Wishlist">
               <Heart className="size-5" />
             </Link>
-            <Link
-              href="/cart"
+            <button
+              type="button"
+              onClick={openCart}
               className="relative transition-colors hover:text-rosegold"
-              aria-label="Cart"
+              aria-label={`Bag${cartCount > 0 ? `, ${cartCount} item${cartCount === 1 ? "" : "s"}` : ""}`}
             >
               <ShoppingBag className="size-5" />
               {cartCount > 0 && (
@@ -159,7 +204,7 @@ export function Header() {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -183,9 +228,7 @@ export function Header() {
               className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-cream p-6 lg:hidden"
             >
               <div className="mb-8 flex items-center justify-between">
-                <span className="font-heading text-xl text-burgundy">
-                  Regal Wears
-                </span>
+                <Logo src={LOGO_ON_LIGHT} onClick={() => setMobileOpen(false)} />
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}
@@ -196,16 +239,25 @@ export function Header() {
                 </button>
               </div>
               <nav className="flex flex-col gap-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-lg px-3 py-3 text-base text-burgundy/90 transition-colors hover:bg-secondary"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+                  const active = isActiveLink(link.href, pathname);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        "rounded-lg px-3 py-3 text-base transition-colors",
+                        active
+                          ? "bg-secondary font-medium text-burgundy"
+                          : "text-burgundy/90 hover:bg-secondary",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </nav>
               <div className="mt-auto flex items-center gap-2 border-t border-border pt-6 text-sm text-burgundy/80">
                 <User className="size-4" />

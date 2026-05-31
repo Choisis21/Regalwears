@@ -9,6 +9,7 @@ import {
   InstagramIcon,
   PinterestIcon,
 } from "@/components/icons/social";
+import { Logo } from "@/components/layout/logo";
 
 const columns = [
   {
@@ -50,9 +51,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
           {/* Brand + newsletter */}
           <div className="lg:col-span-2">
-            <Link href="/" className="font-heading text-2xl tracking-tight text-cream">
-              Regal Wears
-            </Link>
+            <Logo />
             <p className="mt-4 max-w-sm text-sm text-cream/70">
               Beautifully made ladies' wear for the moments worth dressing up
               for. Join us and be first to see what's new.
@@ -70,11 +69,11 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@gmail.com"
-                className="h-11 flex-1 rounded-full border border-cream/20 bg-cream/10 px-4 text-sm text-cream placeholder:text-cream/50 focus:border-rosegold focus:ring-2 focus:ring-rosegold/40 focus:outline-none"
+                className="h-11 w-full min-w-0 flex-1 rounded-full border border-cream/20 bg-cream/10 px-4 text-base text-cream placeholder:text-cream/50 focus:border-rosegold focus:ring-2 focus:ring-rosegold/40 focus:outline-none"
               />
               <button
                 type="submit"
-                className="flex size-11 items-center justify-center rounded-full bg-rosegold text-burgundy transition-opacity hover:opacity-90"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-rosegold text-burgundy transition-opacity hover:opacity-90"
                 aria-label="Subscribe"
               >
                 <Send className="size-4" />

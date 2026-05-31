@@ -14,10 +14,10 @@ export default function HomePage() {
       <CategoryGrid />
       <TrendingRail />
       <NewArrivals />
-      <TrustBadges />
       <StyleStories />
       <NewsletterBanner />
       <InstagramGallery />
+      <TrustBadges />
     </>
   );
 }

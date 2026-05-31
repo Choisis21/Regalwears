@@ -24,7 +24,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden bg-burgundy">
+    <section className="relative min-h-[88vh] w-full overflow-hidden bg-black">
       {/* Background image per slide */}
       <AnimatePresence>
         <motion.div
@@ -46,12 +46,12 @@ export function Hero() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Legibility overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-burgundy/85 via-burgundy/35 to-burgundy/10" />
-      <div className="absolute inset-0 bg-gradient-to-r from-burgundy/55 to-transparent" />
+      {/* Legibility overlay (black, so the white logo and cream text stay crisp) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/35" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
 
-      {/* Content */}
-      <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col justify-end px-4 pb-20 sm:px-6 lg:pb-28">
+      {/* Content (pt clears the fixed header; min-h lets tall content grow the section) */}
+      <div className="relative mx-auto flex min-h-[88vh] w-full max-w-7xl flex-col justify-end px-4 pt-36 pb-20 sm:px-6 lg:pb-28">
         <AnimatePresence mode="wait">
           <motion.div
             key={index}

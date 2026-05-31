@@ -18,11 +18,6 @@
   --color-cream: #faf8f5; /* Warm off-white — page background */
   --color-ink: #2b0f17; /* Deepest text */
   --color-taupe: #8a7681; /* Muted warm grey — secondary text */
-  --color-wine: #321927; /* Reserved deep accent */
-  --color-mauve: #866f76; /* Supporting (used on /design palette) */
-  --color-plum: #634348; /* Secondary accent (used on /design palette) */
-  --color-offwhite: #f8f6f7; /* Light text on dark bands */
-  --color-charcoal: #1e2528; /* Deep neutral (used on /design palette) */
 
   /* shadcn semantic tokens */
   --color-sidebar-ring: var(--sidebar-ring);
