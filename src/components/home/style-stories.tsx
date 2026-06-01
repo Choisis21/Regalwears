@@ -2,11 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Clock } from "lucide-react";
 
-import { blogPreviews } from "@/lib/placeholder-data";
+import { getPreviews } from "@/lib/blog-store";
 import { SectionHeading } from "@/components/home/section-heading";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 
-export function StyleStories() {
+export async function StyleStories() {
+  const blogPreviews = await getPreviews();
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-24 sm:px-6">
       <SectionHeading

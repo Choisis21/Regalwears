@@ -4,12 +4,13 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock } from "lucide-react";
 
-import { blogPosts, getBlogPostBySlug } from "@/lib/placeholder-data";
+import { getAllPosts, getPostBySlug } from "@/lib/blog-store";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Reveal } from "@/components/motion/reveal";
 
-export function generateStaticParams() {
-  return blogPosts.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -18,16 +19,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
+  const title = post.metaTitle || post.title;
+  const description = post.metaDescription || post.excerpt;
   return {
-    title: post.title,
-    description: post.excerpt,
+    title,
+    description,
     openGraph: {
-      title: `${post.title} | Regal Wears`,
-      description: post.excerpt,
+      title: `${title} | Regal Wears`,
+      description,
       type: "article",
-      images: [{ url: post.image, width: 1200, height: 630 }],
+      images: [{ url: post.image, width: 1200, height: 630, alt: post.title }],
     },
   };
 }
@@ -38,7 +41,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   const jsonLd = {

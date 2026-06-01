@@ -1,5 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# local file-backed data store (seeded from placeholder data at runtime)
+/data
+
+# admin-uploaded images (local; move to Cloudinary for production)
+/public/uploads
+
 # dependencies
 /node_modules
 /.pnp

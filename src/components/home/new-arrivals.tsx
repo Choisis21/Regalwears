@@ -1,9 +1,10 @@
-import { newArrivals } from "@/lib/placeholder-data";
+import { getNewArrivals } from "@/lib/catalog-store";
 import { ProductCard } from "@/components/product/product-card";
 import { SectionHeading } from "@/components/home/section-heading";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
 
-export function NewArrivals() {
+export async function NewArrivals() {
+  const newArrivals = await getNewArrivals();
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-24 sm:px-6">
       <SectionHeading

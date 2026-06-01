@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
 import { CartProvider } from "@/components/cart/cart-context";
 import { CartDrawer } from "@/components/cart/cart-drawer";
+import { WishlistProvider } from "@/components/wishlist/wishlist-context";
+import { CurrencyProvider } from "@/components/currency/currency-context";
+import { getSettings } from "@/lib/settings-store";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,15 +20,24 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Regal Wears | Luxury Ladies' Fashion & Timeless Elegance",
-    template: "%s | Regal Wears",
-  },
-  description:
-    "Discover beautifully made ladies' wear at Regal Wears. Elegant dresses, tops, and timeless pieces, styled for every occasion.",
-  icons: { icon: [{ url: "/regal-white.webp", type: "image/webp" }] },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  return {
+    metadataBase: new URL(`https://${s.domain}`),
+    title: {
+      default: s.siteTitle,
+      template: s.titleTemplate,
+    },
+    description: s.description,
+    icons: { icon: [{ url: "/regal-white.webp", type: "image/webp" }] },
+    openGraph: {
+      title: s.siteTitle,
+      description: s.description,
+      siteName: "Regal Wears",
+      images: s.ogImage ? [{ url: s.ogImage }] : undefined,
+    },
+  };
+}
 
 export default function RootLayout({
   children,
@@ -38,10 +51,16 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <CartProvider>
-          {children}
-          <CartDrawer />
-        </CartProvider>
+        <SessionProvider>
+          <CurrencyProvider>
+            <WishlistProvider>
+              <CartProvider>
+                {children}
+                <CartDrawer />
+              </CartProvider>
+            </WishlistProvider>
+          </CurrencyProvider>
+        </SessionProvider>
       </body>
     </html>
   );

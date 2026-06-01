@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { trendingProducts } from "@/lib/placeholder-data";
+import { getTrending } from "@/lib/catalog-store";
 import { ProductCard } from "@/components/product/product-card";
 import { SectionHeading } from "@/components/home/section-heading";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/reveal";
 
-export function TrendingRail() {
+export async function TrendingRail() {
+  const trendingProducts = await getTrending();
   return (
     <section className="bg-secondary/40 py-24">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">

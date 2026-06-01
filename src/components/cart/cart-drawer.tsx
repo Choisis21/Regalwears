@@ -6,13 +6,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 
 import { useCart } from "@/components/cart/cart-context";
-import { formatPrice } from "@/lib/format";
+import { useCurrency } from "@/components/currency/currency-context";
 
 const FREE_SHIPPING_THRESHOLD = 100;
 
 export function CartDrawer() {
   const { isOpen, closeCart, lines, count, subtotal, setQuantity, removeItem } =
     useCart();
+  const { format } = useCurrency();
 
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
@@ -85,7 +86,7 @@ export function CartDrawer() {
                 <div className="border-b border-border bg-secondary/50 px-6 py-3 text-center text-xs text-foreground/80">
                   {remaining > 0 ? (
                     <>
-                      You're {formatPrice(remaining)} away from{" "}
+                      You're {format(remaining)} away from{" "}
                       <span className="font-medium text-burgundy">
                         free shipping
                       </span>
@@ -170,7 +171,7 @@ export function CartDrawer() {
                             </button>
                           </div>
                           <span className="font-medium text-burgundy">
-                            {formatPrice(line.price * line.quantity)}
+                            {format(line.price * line.quantity)}
                           </span>
                         </div>
                       </div>
@@ -183,7 +184,7 @@ export function CartDrawer() {
                   <div className="flex items-center justify-between text-base">
                     <span className="text-foreground">Subtotal</span>
                     <span className="font-medium text-burgundy">
-                      {formatPrice(subtotal)}
+                      {format(subtotal)}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">

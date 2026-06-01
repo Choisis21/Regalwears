@@ -1,17 +1,14 @@
 import Image from "next/image";
 
-import {
-  categoryMeta,
-  getProductsByCatalog,
-  type CatalogSlug,
-} from "@/lib/placeholder-data";
+import { categoryMeta, type CatalogSlug } from "@/lib/placeholder-data";
+import { getProductsByCatalog } from "@/lib/catalog-store";
 import { Breadcrumb, type Crumb } from "@/components/breadcrumb";
 import { ProductBrowser } from "@/components/shop/product-browser";
 import { Reveal } from "@/components/motion/reveal";
 
-export function CatalogView({ slug }: { slug: CatalogSlug }) {
+export async function CatalogView({ slug }: { slug: CatalogSlug }) {
   const meta = categoryMeta[slug];
-  const products = getProductsByCatalog(slug);
+  const products = await getProductsByCatalog(slug);
 
   const crumbs: Crumb[] =
     slug === "all"

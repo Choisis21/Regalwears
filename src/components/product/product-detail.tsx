@@ -15,19 +15,35 @@ import {
 } from "lucide-react";
 
 import type { Product } from "@/lib/placeholder-data";
-import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/components/cart/cart-context";
+import { useWishlist } from "@/components/wishlist/wishlist-context";
+import { useCurrency } from "@/components/currency/currency-context";
 
 export function ProductDetail({ product }: { product: Product }) {
   const { addItem } = useCart();
+  const { has, toggle } = useWishlist();
+  const { format } = useCurrency();
   const [activeImg, setActiveImg] = useState(0);
   const [color, setColor] = useState(product.colors[0]?.name ?? "");
   const [size, setSize] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [sizeError, setSizeError] = useState(false);
-  const [wished, setWished] = useState(false);
+  const wished = has(product.id);
+
+  const toggleWishlist = () => {
+    toggle({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      image: product.image,
+      color,
+      size: size ?? product.sizes[0],
+    });
+  };
 
   const onSale = Boolean(product.compareAtPrice);
   const savePct = product.compareAtPrice
@@ -75,7 +91,7 @@ export function ProductDetail({ product }: { product: Product }) {
         <div className="relative aspect-[3/4] flex-1 overflow-hidden rounded-2xl bg-secondary">
           <Image
             src={product.images[activeImg]}
-            alt={product.name}
+            alt={product.imageAlt || product.name}
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 45vw"
@@ -113,10 +129,10 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <span className="text-2xl font-medium text-burgundy">{formatPrice(product.price)}</span>
+          <span className="text-2xl font-medium text-burgundy">{format(product.price)}</span>
           {onSale && (
             <span className="text-lg text-muted-foreground line-through">
-              {formatPrice(product.compareAtPrice!)}
+              {format(product.compareAtPrice!)}
             </span>
           )}
           {onSale && (
@@ -239,8 +255,8 @@ export function ProductDetail({ product }: { product: Product }) {
 
           <button
             type="button"
-            onClick={() => setWished((w) => !w)}
-            aria-label="Add to wishlist"
+            onClick={toggleWishlist}
+            aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
             aria-pressed={wished}
             className="flex size-12 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-burgundy/50 hover:text-burgundy"
           >

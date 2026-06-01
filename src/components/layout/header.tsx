@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,11 +13,15 @@ import {
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
-import { navLinks, currencies } from "@/lib/placeholder-data";
+import { navLinks } from "@/lib/placeholder-data";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/layout/logo";
 import { useCart } from "@/components/cart/cart-context";
+import { useWishlist } from "@/components/wishlist/wishlist-context";
+import { useCurrency } from "@/components/currency/currency-context";
+import { SearchOverlay } from "@/components/search/search-overlay";
 
 // Black wordmark for light/cream backgrounds (solid header, mobile drawer);
 // white wordmark for the transparent header over a dark hero.
@@ -52,10 +56,16 @@ export function Header() {
   const overHero = routeHasHero(pathname);
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
-  const [currency, setCurrency] = useState(currencies[0]);
+  const currencyRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const { count: cartCount, openCart } = useCart();
+  const { count: wishlistCount } = useWishlist();
+  const { currency, currencies: currencyList, setCurrency } = useCurrency();
+  const { status } = useSession();
+  const authed = status === "authenticated";
+  const accountHref = authed ? "/account" : "/sign-in";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 32);
@@ -63,6 +73,18 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Close the currency menu when clicking anywhere outside it.
+  useEffect(() => {
+    if (!currencyOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (currencyRef.current && !currencyRef.current.contains(e.target as Node)) {
+        setCurrencyOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [currencyOpen]);
 
   // Transparent only while resting at the top of a hero page.
   const transparent = overHero && !scrolled;
@@ -136,7 +158,7 @@ export function Header() {
 
           {/* Actions */}
           <div className={cn("flex items-center gap-3 transition-colors sm:gap-4", fg)}>
-            <div className="relative hidden sm:block">
+            <div ref={currencyRef} className="relative hidden sm:block">
               <button
                 type="button"
                 onClick={() => setCurrencyOpen((v) => !v)}
@@ -160,7 +182,7 @@ export function Header() {
                     className="absolute right-0 mt-3 w-44 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-xl shadow-burgundy/10"
                     role="listbox"
                   >
-                    {currencies.map((c) => (
+                    {currencyList.map((c) => (
                       <li key={c.code}>
                         <button
                           type="button"
@@ -183,14 +205,32 @@ export function Header() {
               </AnimatePresence>
             </div>
 
-            <button type="button" className="transition-colors hover:text-rosegold" aria-label="Search">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="transition-colors hover:text-rosegold"
+              aria-label="Search"
+            >
               <Search className="size-5" />
             </button>
-            <Link href="/account" className="hidden transition-colors hover:text-rosegold sm:block" aria-label="Account">
+            <Link
+              href={accountHref}
+              className="hidden transition-colors hover:text-rosegold sm:block"
+              aria-label={authed ? "My account" : "Sign in"}
+            >
               <User className="size-5" />
             </Link>
-            <Link href="/wishlist" className="transition-colors hover:text-rosegold" aria-label="Wishlist">
+            <Link
+              href="/wishlist"
+              className="relative transition-colors hover:text-rosegold"
+              aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} saved` : ""}`}
+            >
               <Heart className="size-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 flex size-4 items-center justify-center rounded-full bg-rosegold text-[10px] font-semibold text-burgundy">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
             <button
               type="button"
@@ -261,14 +301,16 @@ export function Header() {
               </nav>
               <div className="mt-auto flex items-center gap-2 border-t border-border pt-6 text-sm text-burgundy/80">
                 <User className="size-4" />
-                <Link href="/account" onClick={() => setMobileOpen(false)}>
-                  Account
+                <Link href={accountHref} onClick={() => setMobileOpen(false)}>
+                  {authed ? "My account" : "Sign in"}
                 </Link>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }

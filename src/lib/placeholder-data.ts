@@ -19,13 +19,20 @@ export const navLinks: NavLink[] = [
   { label: "Contact Us", href: "/contact" },
 ];
 
-export type Currency = { code: string; symbol: string; label: string };
+// `rate` is the multiplier from the USD base price. Demo rates; swap for a live
+// FX feed later.
+export type Currency = {
+  code: string;
+  symbol: string;
+  label: string;
+  rate: number;
+};
 
 export const currencies: Currency[] = [
-  { code: "USD", symbol: "$", label: "US Dollar" },
-  { code: "EUR", symbol: "€", label: "Euro" },
-  { code: "GBP", symbol: "£", label: "British Pound" },
-  { code: "NGN", symbol: "₦", label: "Nigerian Naira" },
+  { code: "USD", symbol: "$", label: "US Dollar", rate: 1 },
+  { code: "EUR", symbol: "€", label: "Euro", rate: 0.92 },
+  { code: "GBP", symbol: "£", label: "British Pound", rate: 0.79 },
+  { code: "NGN", symbol: "₦", label: "Nigerian Naira", rate: 1550 },
 ];
 
 export type HeroSlide = {
@@ -100,6 +107,11 @@ export type Product = {
   description: string;
   categorySlug: CategorySlug;
   isNew?: boolean;
+  stock?: number;
+  // SEO
+  metaTitle?: string;
+  metaDescription?: string;
+  imageAlt?: string;
 };
 
 const SIZES = ["XS", "S", "M", "L", "XL"];
@@ -370,6 +382,8 @@ export type BlogPost = {
   author: string;
   date: string;
   body: BlogBlock[];
+  metaTitle?: string;
+  metaDescription?: string;
 };
 
 export const blogPosts: BlogPost[] = [
@@ -500,3 +514,85 @@ export const galleryImages: string[] = [
   img("1539008835657-9e8e9680c956", 700),
   img("1490481651871-ab68de25d43d", 700),
 ];
+
+// --- Reviews ---------------------------------------------------------------
+
+export type Review = {
+  id: string;
+  author: string;
+  rating: number;
+  date: string; // ISO date
+  title: string;
+  body: string;
+};
+
+const REVIEW_POOL: Omit<Review, "id">[] = [
+  {
+    author: "Amelia R.",
+    rating: 5,
+    date: "2026-04-18",
+    title: "Absolutely beautiful",
+    body: "The fabric feels gorgeous and the fit is spot on. I've had so many compliments already. This will be on repeat all season.",
+  },
+  {
+    author: "Priya S.",
+    rating: 5,
+    date: "2026-04-02",
+    title: "My new favourite",
+    body: "True to size and even prettier in person. The colour is rich and the cut is so flattering. Worth every penny.",
+  },
+  {
+    author: "Chloe M.",
+    rating: 4,
+    date: "2026-03-21",
+    title: "Lovely, runs a touch long",
+    body: "Really happy with this. The quality is lovely. I'm petite so I'll get the hem taken up a little, but otherwise perfect.",
+  },
+  {
+    author: "Hannah B.",
+    rating: 5,
+    date: "2026-03-09",
+    title: "Wore it to a wedding",
+    body: "Felt elegant and comfortable all day. The material moves beautifully and didn't crease. Highly recommend.",
+  },
+  {
+    author: "Sofia L.",
+    rating: 5,
+    date: "2026-02-26",
+    title: "Such good quality",
+    body: "You can tell it's well made the moment you open the box. Soft, structured in the right places, and the stitching is lovely.",
+  },
+  {
+    author: "Grace T.",
+    rating: 4,
+    date: "2026-02-11",
+    title: "Gorgeous, ordered another",
+    body: "Loved it so much I bought a second colour. Knocking off one star only because I wish there were more shades to choose from.",
+  },
+  {
+    author: "Isla W.",
+    rating: 5,
+    date: "2026-01-30",
+    title: "Feels luxe",
+    body: "This feels far more expensive than it is. The drape is beautiful and it's become my go to for dinners out.",
+  },
+  {
+    author: "Maya K.",
+    rating: 5,
+    date: "2026-01-15",
+    title: "Can't fault it",
+    body: "Fast delivery, beautiful packaging, and the piece itself is stunning. Exactly as pictured. So pleased.",
+  },
+];
+
+/** Deterministic set of written reviews for a product (demo content). */
+export function getReviewsForProduct(product: Product): Review[] {
+  const seed = parseInt(product.id.replace(/\D/g, ""), 10) || 1;
+  const count = 3 + (seed % 3); // 3 to 5 reviews
+  const out: Review[] = [];
+  for (let i = 0; i < count; i++) {
+    const base = REVIEW_POOL[(seed + i) % REVIEW_POOL.length];
+    out.push({ id: `${product.id}-r${i}`, ...base });
+  }
+  return out;
+}
